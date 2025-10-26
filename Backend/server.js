@@ -105,6 +105,20 @@ app.post('/api/login', async (req, res) => {
     res.status(500).send('Error de servidor');
   }
 });
+// Ruta de registro
+app.post('/register', async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const [existing] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+    if (existing.length > 0) return res.status(400).send('Este correo ya está registrado');
+
+    await db.query('INSERT INTO users (email, password_hash) VALUES (?, ?)', [email, password]);
+    res.sendStatus(200);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error al registrar usuario');
+  }
+});
 
 // Ruta de logout
 app.get('/api/logout', (req, res) => {
