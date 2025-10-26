@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Acceder o Registrarse</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2 id="formTitle">Iniciar sesión</h2>
+
+    <!-- Formulario de Login -->
+    <form id="loginForm">
+      <input type="email" id="loginEmail" placeholder="Correo" required />
+      <input type="password" id="loginPassword" placeholder="Contraseña" required />
+      <button type="submit">Entrar</button>
+      <p id="msgLogin"></p>
+    </form>
+
+    <!-- Formulario de Registro (oculto al inicio) -->
+    <form id="registerForm" style="display: none;">
+      <input type="email" id="regEmail" placeholder="Correo" required />
+      <input type="password" id="regPassword" placeholder="Contraseña" required />
+      <button type="submit">Registrarse</button>
+      <p id="msgRegister"></p>
+    </form>
+
+    <p style="text-align: center; margin-top: 1rem;">
+      <a href="#" id="toggleForm">¿No tienes cuenta? Regístrate</a>
+    </p>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const toggleLink = document.getElementById('toggleForm');
+    const formTitle = document.getElementById('formTitle');
+
+    toggleLink.onclick = () => {
+      const isLoginVisible = loginForm.style.display !== 'none';
+      loginForm.style.display = isLoginVisible ? 'none' : 'block';
+      registerForm.style.display = isLoginVisible ? 'block' : 'none';
+      formTitle.textContent = isLoginVisible ? 'Registrarse' : 'Iniciar sesión';
+      toggleLink.textContent = isLoginVisible
+        ? '¿Ya tienes cuenta? Inicia sesión'
+        : '¿No tienes cuenta? Regístrate';
+    };
+
+    loginForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      const res = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const msg = document.getElementById('msgLogin');
+      msg.style.color = res.ok ? 'green' : 'red';
+      msg.textContent = res.ok ? 'Bienvenido 🎉' : 'Credenciales incorrectas';
+
+      if (res.ok) setTimeout(() => window.location.href = '/preferences.html', 800);
+    };
+
+    registerForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('regEmail').value;
+      const password = document.getElementById('regPassword').value;
+
+      const res = await fetch('/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const msg = document.getElementById('msgRegister');
+      msg.style.color = res.ok ? 'green' : 'red';
+      msg.textContent = res.ok ? 'Cuenta creada ✅' : 'Ya existe ese correo ❌';
+
+      if (res.ok) {
+        setTimeout(() => {
+          toggleLink.click(); // Cambia al formulario de login
+        }, 1000);
+      }
+    };
+  </script>
+</body>
+</html>

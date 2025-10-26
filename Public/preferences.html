@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Preferencias</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Selecciona tus categorías favoritas</h2>
+    <form id="prefsForm">
+      <div id="checkboxContainer"></div>
+      <button type="submit">Guardar preferencias</button>
+      <p id="msg"></p>
+    </form>
+  </div>
+
+  <script>
+    async function cargarCategorias() {
+      const res = await fetch('/api/categories');
+      const cats = await res.json();
+      const container = document.getElementById('checkboxContainer');
+      container.innerHTML = '';
+
+      cats.forEach(cat => {
+        const label = document.createElement('label');
+        label.innerHTML = `
+          <input type="checkbox" value="${cat.category_id}" />
+          ${cat.name}
+        `;
+        container.appendChild(label);
+      });
+    }
+
+    document.getElementById('prefsForm').onsubmit = async (e) => {
+      e.preventDefault();
+      const seleccionadas = [...document.querySelectorAll('input[type="checkbox"]:checked')]
+        .map(c => parseInt(c.value));
+
+      const res = await fetch('/api/preferences', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ categoryIds: seleccionadas })
+      });
+
+      const msg = document.getElementById('msg');
+      msg.style.color = res.ok ? 'green' : 'red';
+      msg.textContent = res.ok ? 'Preferencias guardadas 🎉' : 'Error al guardar preferencias ❌';
+
+      if (res.ok) setTimeout(() => window.location.href = '/news.html', 800);
+    };
+
+    cargarCategorias();
+  </script>
+</body>
+</html>
