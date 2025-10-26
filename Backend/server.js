@@ -107,7 +107,9 @@ app.post('/api/login', async (req, res) => {
 });
 app.post('/register', async (req, res) => {
   const { email, password } = req.body;
-  console.log('Registrando:', email, password); // 👈 Verifica esto en consola
+
+  // 👇 Este log es clave para saber qué está llegando desde el frontend
+  console.log('👉 REGISTRO RECIBIDO:', email, password);
 
   if (!email || !password) {
     return res.status(400).send('Faltan datos');
@@ -120,7 +122,7 @@ app.post('/register', async (req, res) => {
     await db.query('INSERT INTO users (email, password_hash) VALUES (?, ?)', [email, password]);
     res.sendStatus(200);
   } catch (err) {
-    console.error('Error de registro:', err);
+    console.error('❌ Error de registro:', err);
     res.status(500).send('Error al registrar usuario');
   }
 });
